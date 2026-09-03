@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 
 namespace RegistrationDemo;
@@ -11,24 +12,55 @@ public partial class MainWindow : Window
 
     private void SubmitButton_Click(object sender, RoutedEventArgs e)
     {
-        // ЗАДАНИЕ ДЛЯ СТУДЕНТА (задание на паре — правка + Pull Request):
-        //
-        // 1. Прочитать имя из NameTextBox.Text, email из EmailTextBox.Text
-        //    и дату рождения из BirthDatePicker.SelectedDate (это Nullable<DateTime> —
-        //    проверьте, что дата вообще выбрана).
-        // 2. Проверить email через EmailValidator.IsValid(...).
-        // 3. Посчитать профиль участника: AgeCalculator.BuildProfile(birthDate).
-        //    Метод вернёт RegistrationProfile — возраст, категорию, скидку и цену.
-        // 4. Вывести результат в ResultTextBlock.Text, например:
-        //       $"{name}: {profile.Description}"
-        //    что даст строку вида
-        //       "Иван: 20 лет 3 мес. 12 дн. — категория «Студент», скидка 35%, к оплате 7 800 ₽"
-        //    или сообщить, что не так, если поля не заполнены / email некорректен.
-        //
-        // Реализация ниже — временная заглушка, замените её.
+        // 1. Читаем данные из полей
+        string name = NameTextBox.Text?.Trim() ?? string.Empty;
+        string email = EmailTextBox.Text?.Trim() ?? string.Empty;
+        DateTime? birthDate = BirthDatePicker.SelectedDate;
 
-        //ResultTextBlock.Text = "TODO: обработчик ещё не реализован";
+        // Проверяем имя
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            ResultTextBlock.Text = "Ошибка: имя не заполнено.";
+            return;
+        }
 
+        // Проверяем email
+        if (string.IsNullOrWhiteSpace(email) || !EmailValidator.IsValid(email))
+        {
+            ResultTextBlock.Text = "Ошибка: введите корректный email.";
+            return;
+        }
+
+        // Проверяем дату рождения
+        if (!birthDate.HasValue)
+        {
+            ResultTextBlock.Text = "Ошибка: дата рождения не выбрана.";
+            return;
+        }
+
+        // Проверяем, что дата рождения не в будущем
+        if (birthDate.Value > DateTime.Today)
+        {
+            ResultTextBlock.Text = "Ошибка: дата рождения не может быть в будущем.";
+            return;
+        }
+
+        try
+        {
+            // 2. Строим профиль участника
+            RegistrationProfile profile = AgeCalculator.BuildProfile(birthDate.Value);
+
+            // 3. Выводим результат
+            ResultTextBlock.Text = $"{name}: {profile.Description}";
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            ResultTextBlock.Text = $"Ошибка: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            ResultTextBlock.Text = $"Произошла ошибка: {ex.Message}";
+        }
 
     }
 }

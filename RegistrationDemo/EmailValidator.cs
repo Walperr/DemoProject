@@ -17,5 +17,6 @@ public static class EmailValidator
 
         string domain = email[(at + 1)..];
         return domain.Contains('.') && !domain.StartsWith('.') && !domain.EndsWith('.');
+
     }
 }
